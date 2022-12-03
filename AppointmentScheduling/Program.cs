@@ -8,11 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
 
-builder.Services.AddDbContext<AppDbContext>(o => 
+builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDefaultIdentity<AppUser>()
+builder.Services.AddDefaultIdentity<AppUser>(
+        o =>
+        {
+            o.Password.RequireNonAlphanumeric = false;
+        }
+    )
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
@@ -29,6 +34,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

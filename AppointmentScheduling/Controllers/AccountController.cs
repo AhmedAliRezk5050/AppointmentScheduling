@@ -30,6 +30,28 @@ namespace AppointmentScheduling.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var signinResult = await _signInManager.PasswordSignInAsync(
+                model.Email,
+                model.Password, false, model.RememberMe);
+
+            if (!signinResult.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid credentials");
+                return View(model);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
         public async Task<IActionResult> Register()
         {
             if (!await _roleManager.RoleExistsAsync(Roles.Admin))
@@ -38,6 +60,7 @@ namespace AppointmentScheduling.Controllers
                 await _roleManager.CreateAsync(new IdentityRole(Roles.Doctor));
                 await _roleManager.CreateAsync(new IdentityRole(Roles.Patient));
             }
+
             return View();
         }
 
@@ -59,7 +82,7 @@ namespace AppointmentScheduling.Controllers
 
             var result = await _userManager.CreateAsync(appUser, model.Password);
 
-            
+
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(appUser, model.RoleName);
@@ -71,8 +94,17 @@ namespace AppointmentScheduling.Controllers
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-            
+
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+
+            return RedirectToAction("Login", "Account");
         }
     }
 }

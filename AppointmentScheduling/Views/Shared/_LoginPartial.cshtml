@@ -1,0 +1,13 @@
+﻿@if (User.Identity is {IsAuthenticated: true })
+{
+    
+}
+else
+{
+    <ul class="nav navbar-nav">
+        <li>
+            @Html.ActionLink("Register", "Register", "Account")
+            @Html.ActionLink("Login", "Login", "Account")
+        </li>
+    </ul>
+}
